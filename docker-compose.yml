@@ -1,0 +1,31 @@
+version: "3.7"
+
+services:
+  oracledb:
+    image: carloscastillo/rgt-oracle-xe-11g
+    volumes:
+      - "oraclexedbdata:/u01/app/oracle"
+    environment:
+      - SCHEMAS=lfeher
+    ports:
+      - "9090:8080" # Apex
+      - "1521:1521" # Database
+
+  flyway:
+    image: lfeher/flyway-4.2.0
+    volumes:
+      - "./target/classes/db_migrations/:/flyway/sql/"
+    entrypoint: ["./wait-for-it.sh","oracledb:8080","--timeout=120","--strict", "--", "/flyway/flyway", "-url=jdbc:oracle:thin:@oracledb:1521:xe", "-user=lfeher", "-password=lfeher", "-schemas=LFEHER", "migrate"]
+    depends_on:
+      - "oracledb"
+
+  wildfly15:
+    build: .
+    ports:
+      - "8080:8080"
+    entrypoint: ["/opt/wildfly/bin/wait-for-it.sh","oracledb:8080","--timeout=120","--strict", "--", "/opt/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]
+    depends_on:
+      - "flyway"
+      - "oracledb"
+volumes:
+  oraclexedbdata:

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="dailyLogFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/var/log/javaee8-wildfly/application.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/javaee8-wildfly/application.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+        </rollingPolicy>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%date %level [%thread] %logger{5}[%line] %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="WARN">
+        <appender-ref ref="dailyLogFile" />
+    </root>
+
+    <logger name="com.lfeher" level="TRACE" additivity="false">
+        <appender-ref ref="dailyLogFile" />
+    </logger>
+
+</configuration>
